@@ -1,0 +1,5 @@
+model,split,best_params,cv_r2_mean,cv_r2_std,MAE,RMSE,R2,MAPE
+Decision Tree,80_20,"{'max_depth': 6, 'min_samples_leaf': 5, 'min_samples_split': 2}",0.9381,0.0054,150.54,641.46,0.8227,6.78
+Random Forest,80_20,"{'max_depth': None, 'max_features': 'sqrt', 'n_estimators': 300}",0.9437,0.0038,136.18,639.49,0.8238,5.88
+Decision Tree,70_30,"{'max_depth': 6, 'min_samples_leaf': 10, 'min_samples_split': 2}",0.9373,0.004,154.37,638.16,0.8208,7.01
+Random Forest,70_30,"{'max_depth': None, 'max_features': 'sqrt', 'n_estimators': 300}",0.9446,0.0029,137.82,632.12,0.8242,6.04

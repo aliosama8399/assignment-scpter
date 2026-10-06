@@ -1,0 +1,11 @@
+strategy,column,n_filled,imputed_mean,imputed_std,imputed_min,imputed_max
+mean,weight,300,31028.844,0.0,31028.844,31028.844
+mean,market_index,374,1.0834,0.0,1.0834,1.0834
+median,weight,300,31436.5,0.0,31436.5,31436.5
+median,market_index,374,1.0558,0.0,1.0558,1.0558
+mode,weight,300,47500.0,0.0,47500.0,47500.0
+mode,market_index,374,0.8849,0.0,0.8849,0.8849
+knn,weight,300,30673.0867,4702.4618,18185.2,40833.6
+knn,market_index,374,1.0756,0.0828,0.8507,1.3084
+iterative,weight,300,30981.475,277.5013,28948.1299,32077.8185
+iterative,market_index,374,1.0824,0.0155,0.9919,1.2149
