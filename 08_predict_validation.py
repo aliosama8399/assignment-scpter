@@ -172,13 +172,14 @@ print("\nTraining LightGBM on full training data ...")
 try:
     from lightgbm import LGBMRegressor
 
+    # Hyperparameters tuned by GridSearchCV in 06_model_boosting.py
     model = LGBMRegressor(
-        n_estimators=500,
-        max_depth=6,
-        learning_rate=0.05,
-        num_leaves=63,
-        subsample=0.8,
-        colsample_bytree=0.8,
+        n_estimators=300,
+        max_depth=4,
+        learning_rate=0.03,
+        num_leaves=31,
+        subsample=0.7,
+        colsample_bytree=0.7,
         random_state=RANDOM_SEED,
         verbose=-1,
         n_jobs=1,
@@ -247,5 +248,42 @@ print(output.head(10).to_string(index=False))
 
 print(f"\n  Last 5 predictions:")
 print(output.tail(5).to_string(index=False))
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 10. DECEMBER CHART PREDICTIONS (for score.py)
+# ═══════════════════════════════════════════════════════════════════════════════
+print("\nPredicting December chart inputs ...")
+DEC_IN  = "december-chart-inputs.csv"
+DEC_OUT = "december_chart_predictions.csv"
+
+dec = pd.read_csv(DEC_IN)
+raw = pd.concat([pd.read_csv(TRAIN_PATH), pd.read_csv(VAL_PATH)])
+coords = raw.groupby("pickup")[["pickup_lat", "pickup_lon"]].first()
+coords_d = raw.groupby("delivery")[["delivery_lat", "delivery_lon"]].first()
+
+d = dec.drop(columns=["predicted_rate"]).copy()
+d[["pickup_lat", "pickup_lon"]] = coords.loc[d["pickup"]].values
+d[["delivery_lat", "delivery_lon"]] = coords_d.loc[d["delivery"]].values
+
+# Market conditions for December are unknown: hold them at the most recent
+# level seen in the data (median of the last 30 days of validation).
+recent = pd.read_csv(VAL_PATH, parse_dates=["date"])
+recent = recent[recent["date"] >= recent["date"].max() - pd.Timedelta(days=30)]
+d["market_index"] = recent["market_index"].median()
+d["quote_signal"] = recent["quote_signal"].median()
+
+d = engineer_features(d)
+for col in encode_cols:
+    le = LabelEncoder().fit(pd.concat([df_train[col], df_val[col]]).astype(str))
+    d[col + "_enc"] = le.transform(d[col].astype(str))
+
+X_dec = d[feats_avail].copy()
+for c in feats_avail:
+    X_dec[c] = X_dec[c].fillna(X_train[c].median())
+
+dec["predicted_rate"] = np.round(np.clip(np.expm1(model.predict(X_dec)), 0.01, None), 2)
+dec.to_csv(DEC_OUT, index=False)
+print(f"  Saved: {DEC_OUT}")
+print(dec[["date", "predicted_rate"]].head(5).to_string(index=False))
 
 print("\n[08_predict_validation.py] DONE")
